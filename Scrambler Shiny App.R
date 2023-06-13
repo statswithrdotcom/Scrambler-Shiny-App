@@ -1,6 +1,8 @@
 
 library(shiny)
 library(shinythemes)
+library(bslib)
+library(rclipboard)
 
 rand_letters_nums <- function(n){
   Choices = c(letters,LETTERS,0:9)
@@ -88,6 +90,7 @@ Password_Remove <- function(Scrambled, Password = "Crypto"){
 
 
 ui <- fluidPage(theme = shinytheme("cosmo"),
+    rclipboardSetup(),
     navbarPage(
     "Message Scrambler and Unscrambler",
 
@@ -105,6 +108,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
           mainPanel(
             h1("Scrambled Output"),
             verbatimTextOutput("Encoded"),
+            uiOutput("clip1"),
             h4("Made by statswithr.com")
           )
       ) 
@@ -125,6 +129,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                mainPanel(
                  h1("Unscrambled Output"),
                  verbatimTextOutput("Decoded"),
+                 uiOutput("clip2"),
                  h4("Made by statswithr.com")
                )
              ) 
@@ -141,7 +146,16 @@ server <- function(input, output) {
   output$Decoded <- renderText({
    Password_Remove(Scrambled = input$Scram, Password = input$Pass2)
   })
-
+  
+  output$clip1 <- renderUI({
+    rclipButton("clipbtn",label = "Copy Output", 
+      clipText = Password_Protect(Message = input$Mess, Password = input$Pass))
+  })
+  
+  output$clip2 <- renderUI({
+    rclipButton("clipbtn",label = "Copy Output", 
+      clipText = Password_Remove(Scrambled = input$Scram, Password = input$Pass2))
+    })
 
 }
 
